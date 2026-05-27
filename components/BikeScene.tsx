@@ -1,13 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef,useState,useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
 import BikeModel from './BikeModel';
 import ProductSidebar from './ProductSidebar';
 import type { BikePart } from '@/data/products';
+
+function CameraController({ view }: { view: [number, number, number] }) {
+  const { camera } = useThree();
+  const controlsRef = useRef<OrbitControlsImpl>(null);
+
+  useEffect(() => {
+    camera.position.set(...view);
+    camera.lookAt(0, 0, 0);
+    controlsRef.current?.update();
+  }, [view, camera]);
+
+  return <OrbitControls ref={controlsRef} enableDamping />;
+}
 
 export default function BikeScene() {
   const [selectedPart, setSelectedPart] = useState<BikePart | null>(null);
